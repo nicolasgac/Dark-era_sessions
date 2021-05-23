@@ -1,0 +1,206 @@
+\documentclass[red]{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+{
+ % \usetheme{Ilmenau}
+\usetheme{Warsaw}
+ % \usetheme{Darmstadt}      % or try Darmstadt, Madrid, Warsaw, ...
+ % \usecolortheme{dolphin} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{\insertframenumber/\inserttotalframenumber}
+%  \setbeamertemplate{caption}[numbered]
+ % \setbeamertemplate{footline}[infolines theme]
+}
+\usepackage{verbatim}
+\usepackage{wasysym}
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xspace}
+\usepackage{amsmath, abrmath, bm, dsfont}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{subcaption}
+\usepackage{eurosym}
+\usepackage{lmodern}
+
+\usepackage{fontawesome}
+
+\captionsetup[subfigure]{labelformat=empty}
+
+\setbeamertemplate{blocks}[rounded][shadow=false]
+%\setbeamertemplate{navigation bars}[shadow=false]
+\setbeamertemplate{title page}[default][colsep=-4bp,rounded=false]
+%\setbeamercolor{title}{fg=red,bg=white}
+% \setbeamercolor{block title}{fg=structure,bg=white}
+
+\title[Dark-era]{\textbf{Dark-era} \small{(ANR-20-CE46-0001-01)} 
+}
+\subtitle{Dataflow Algorithm aRchitecture co-design of SKA pipeline for Exascale Radio Astronomy\\ \includegraphics[width=1cm]{logo-projet-finance-par-ANR.jpg}}
+\institute[IETR/IRISA/L2S/Lagrange/Nançay]{Daniel Charlet$^{**5}$ (IJCLab), Karol Desnos$^{1}$, Mickael Dardaillon$^{3}$, André Ferrari$^{4}$, Chiara Ferrari$^{4}$, Nicolas Gac$^{3}$, Jean-François Nezan$^{1}$, François Orieux$^{3}$, Simon Prunet$^{4}$, Martin Quinson$^{2}$, Frédéric Suter$^{**2}$(IN2P3 Computing Center), Cyril Tasse$^{**5}$ (GEPI), Cédric Viou$^{5}$ }
+\author[IETR/IRISA/L2S/Lagrange/Nançay]{$^{1}$IETR (INSA),  $^{2}$IRISA (ENS), $^{3}$L2S (CS), $^{4}$Lagrange (UCA),  $^{5}$Nançay (Obs Paris)}
+\date{1er février 2021, Kick-off du projet  }
+%\setbeamersize{text margin left=0mm,text margin right=0mm} 
+\begin{document}
+{
+\usebackgroundtemplate{\tikz\node[opacity=0.7]
+  {
+    \hspace{-0.25cm} \includegraphics[width=\paperwidth]{MeerKAT_GalacticCentre_image_compress.jpg}};
+}
+
+\begin{frame}
+   \titlepage
+\end{frame}
+}
+{
+\usebackgroundtemplate{\includegraphics[height=\paperheight]{SKA}}
+\setbeamercolor{normal text}{fg=white}
+\setbeamercolor{section in toc}{fg=white}
+
+% Uncomment these lines for an automatically generated outline.
+\begin{frame}{}
+  
+ \tableofcontents
+\end{frame}
+}
+%\usebackgroundtemplate{}
+
+
+\section{Projet DARK-ERA}
+
+\subsection{Contexte et objectifs}
+%\subsection{Le radiotelescope SKA}
+
+\begin{frame}{Le radiotelescope SKA}
+  \begin{center}
+        \includegraphics[width=0.9\textwidth]{ska_700_01.jpg}
+    \end{center}
+    
+\end{frame}
+
+\begin{frame}{Le pipeline SDP}
+  \begin{center}
+        \includegraphics[width=0.9\textwidth]{pipeline.png}
+    \end{center}
+    
+\end{frame}
+
+\begin{frame}{SKA, un défi $A^3$ à grande échelle}
+\small{
+\begin{block}{Le supercalculateur SDP (Science Data Processing), un projet HPC pionner}
+  \begin{itemize}
+  \item \textbf{Flux de données gigantesque} à traiter en \textbf{temps réel}
+  \item Chaîne algorithmique \textbf{complexe} d'inversion de données 
+  \item \textbf{Budget énergétique limité}
+  \end{itemize}
+\end{block}
+    
+  
+  \begin{block}{Adéquation Algorithme Architecture ($A^3$) \textit{[thème C du GDR ISIS]} }
+%\begin{block}{A l'interface de l'électronique et de l'informatique }
+   %\underline{Définition} : 
+   Meilleure \textbf{combinaison d’architectures et d’algorithmes} 
+   %Recherche de la meilleure \textbf{combinaison d’architectures et d’algorithmes} %\only<3>{pour respecter les contraintes de temps, précision, coût, consommation énergétique et temps de développement.} %\only<1-2>{
+      %\vspace{0.1cm}\\
+       sous \textbf{contraintes} de temps de traitement, précision de calcul, consommation énergétique, coût du système de calcul et temps de développement
+\end{block}
+    }
+\end{frame}
+
+\begin{frame}{Objectifs Dark-era}
+\scriptsize{
+\begin{block}{\textbf{Objectif$\#$1} :  Construire SimSDP, simulateur exascale basée sur une description en flot de données}
+    \begin{center}
+    \includegraphics[width=0.9\textwidth ]{SimSDP_overview} % %et/ou [height=]
+    \end{center}
+\end{block}
+
+\begin{block}{\textbf{Objectif$\#$2} : Explorer des architectures de coprocesseurs à basse consommation}
+  $\implies$  cartes accélératrices à base de FPGA et MPPA (Kalray) alternative aux GPUs
+\end{block}
+
+
+\begin{block}{\textbf{Objectif$\#$3} : Apporter une contribution française à \textit{SKA computing}}
+    SKA est à la fois une étude de cas pour $\#1$ et $\#2$ et un objectif applicatif en soi
+\end{block}
+}
+\end{frame}
+
+\subsection{Consortium}
+
+\begin{frame}{Consortium (1/2)}
+\vspace{-1cm}
+    \begin{center}
+      \includegraphics[width=11cm]{team_SKALLAS}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}{Consortium (2/2)}
+\small{
+\begin{block}{Enjeux et motivations du consortium}
+\item \textbf{Outil SimSDP}
+    \begin{itemize} \footnotesize{
+      \item Défi commun de son adoption par les radioastronomes
+    \item Utilisation pour d'autres applications \og flot de données \fg}
+     \end{itemize}
+     \item  \textbf{Exploration d'architectures alternatives aux GPU}
+     \begin{itemize}
+      \item Prototype FPGA de la chaine SDP de NenuFAR (Nançay) 
+      \item Complémentarité avec projet connexe ExaSKA sur GPU
+\end{itemize}
+    \end{block}
+    \begin{block}{Interactions enrichissantes au sein du consortium}
+    \begin{tabular}{lcl}  
+      Radiastronomie &\faArrowsH&  Problèmes inverses\vspace{0.1cm} \\
+   Informatique HPC &\faArrowsH&  Electronique embarquée\vspace{0.1cm}\\
+   $A^3$ \og outils \fg &\faArrowsH & $A^3$ \og proche applications/architecture \fg  
+    \end{tabular}
+    \end{block}
+    }
+\end{frame}
+
+
+\subsection{Organisation}
+
+\begin{frame}{Organisation en tâches}
+
+ \begin{center}
+    \includegraphics[width=1.0\textwidth ]{Tasks} % %et/ou [height=]
+    \end{center}
+    
+\end{frame}
+
+
+\begin{frame}{Planning}
+\vspace{-0.6cm}
+ \begin{center}
+      \includegraphics[scale=0.4,angle=270]{gantt_2020} % %et/ou [height=]
+    \end{center}
+    
+\end{frame}
+
+
+\begin{frame}{Publications}
+ \footnotesize{
+ \begin{block}{l'ANR dans le texte}
+ Le coordinateur ou la coordinatrice et les partenaires s’engagent à déposer les publications scientifiques* (texte intégral) issues du projet de recherche dans une archive ouverte, soit directement dans HAL soit par l'intermédiaire d'une archive institutionnelle locale dans les conditions de l’article 30 de la Loi « Pour une République numérique » (embargo max. 6 mois pour STM et 12 mois pour SHS).
+ \end{block}
+ 
+ \begin{block}{Pour Dark-era}
+ \begin{itemize}
+ \item Mettre dans nos publications : \textit{This work was supported by DARK-ERA (ANR-20-CE46-0001-01)}
+ \item Déposer dans HAL.  Remplir le champs « projet ANR » avec le code décision ANR-20-CE46-0001-01
+ \item Mettre le logo ANR (disponible \href{https://mycore.core-cloud.net/index.php/s/XZuRHdrbjy1tcOD}{\color{blue}\underline{ici}}) dans les présentations  : \includegraphics[width=1cm]{logo-projet-finance-par-ANR.jpg} 
+ \end{itemize}
+ \end{block}
+    }
+\end{frame}
+
+\end{document}
